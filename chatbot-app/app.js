@@ -149,21 +149,56 @@ function scrollToSection(id) {
 }
 
 // =================== COUNTERS ===================
-function animateCounters() {
-  document.querySelectorAll('.counter').forEach(el => {
-    const target = parseInt(el.dataset.target);
-    const suffix = el.dataset.suffix || '';
-    const duration = 1800;
-    const start = performance.now();
-    function update(now) {
-      const progress = Math.min((now - start) / duration, 1);
-      const eased = 1 - Math.pow(1 - progress, 3);
-      el.textContent = Math.round(eased * target).toLocaleString() + suffix;
-      if (progress < 1) requestAnimationFrame(update);
+// Reusable animated counter helper.
+// Start from 0 and count smoothly to target using requestAnimationFrame.
+// Prevents overlap/flicker by cancelling any previous animation on the same element.
+const _counterAnimState = new Map(); // elementId -> { rafId }
+
+function animateCounter(elementId, targetValue, suffix = "") {
+  const el = document.getElementById(elementId);
+  if (!el) return;
+
+  const rawTarget = typeof targetValue === 'string' ? Number(targetValue) : targetValue;
+  const target = Number.isFinite(rawTarget) ? rawTarget : 0;
+
+  const duration = 1900; // ~1.5–2s
+
+  // Cancel any in-flight animation for this element
+  const prev = _counterAnimState.get(elementId);
+  if (prev?.rafId) cancelAnimationFrame(prev.rafId);
+
+  el.textContent = (0).toLocaleString() + suffix;
+
+  const start = performance.now();
+
+  function update(now) {
+    const progress = Math.min((now - start) / duration, 1);
+    // easeOutCubic
+    const eased = 1 - Math.pow(1 - progress, 3);
+    const current = target * eased;
+
+    // Percentage counters: keep up to 1 decimal if needed; otherwise round.
+    const displayNum = Number.isInteger(target)
+      ? Math.round(current)
+      : Math.round(current * 10) / 10;
+
+    el.textContent = displayNum.toLocaleString(undefined, Number.isInteger(displayNum) ? undefined : { maximumFractionDigits: 1 }) + suffix;
+
+    if (progress < 1) {
+      const rafId = requestAnimationFrame(update);
+      _counterAnimState.set(elementId, { rafId });
     }
-    requestAnimationFrame(update);
-  });
+  }
+
+  const rafId = requestAnimationFrame(update);
+  _counterAnimState.set(elementId, { rafId });
 }
+
+// Backwards compat (no longer used for this app's stat cards)
+function animateCounters() {
+  // no-op: stat cards use animateCounter(...) with explicit IDs.
+}
+
 
 // =================== BAR ANIMATIONS ===================
 function animateBars() {
@@ -194,9 +229,12 @@ let chartsInit = {};
 
 // =================== DASHBOARD ===================
 function initDashboard() {
-  animateCounters();
+  // Animate dashboard stat cards (they are populated by loadFleetSummary(),
+  // but initDashboard may run before that settles on navigation).
+  // We keep this empty so we don't double-animate with the same API payload.
 
   fetch("http://127.0.0.1:8000/exceptions")
+
     .then(res => res.json())
     .then(data => {
       const total = Object.values(data).reduce((a, b) => a + b, 0);
@@ -597,25 +635,34 @@ window.addEventListener('load', () => {
   setInterval(() => {
     loadFleetSummary();
   }, 30000);
+
+  // Make sure Dashboard navigation triggers the counters even if the
+  // previous API call completed before navigation.
+  window.addEventListener('focus', () => {
+    const dashActive = document.getElementById('dashboard-page')?.classList.contains('active');
+    if (dashActive) loadFleetSummary();
+  });
 });
+
 
 async function loadFleetSummary() {
   try {
     const response = await fetch("http://127.0.0.1:8000/fleet-summary");
     const data = await response.json();
 
-    // HOME PAGE
-    document.getElementById("homeTotalVehicles").innerText = data.total_vehicles.toLocaleString();
-    document.getElementById("homeTotalTrips").innerText = data.total_trips.toLocaleString();
-    document.getElementById("homeAvgScore").innerText = data.avg_safety_score + "%";
-    document.getElementById("homeRepeatVehicles").innerText = data.repeat_vehicles.toLocaleString();
-    document.getElementById("homeTotalExceptions").innerText = data.total_exceptions.toLocaleString();
+    // HOME PAGE (animate AFTER API response)
+    animateCounter("homeTotalVehicles", data.total_vehicles);
+    animateCounter("homeTotalTrips", data.total_trips);
+    animateCounter("homeAvgScore", data.avg_safety_score, "%");
+    animateCounter("homeRepeatVehicles", data.repeat_vehicles);
+    animateCounter("homeTotalExceptions", data.total_exceptions);
 
-    // DASHBOARD PAGE
-    document.getElementById("dbTotalTrips").innerText = data.total_trips.toLocaleString();
-    document.getElementById("dbTotalVehicles").innerText = data.total_vehicles.toLocaleString();
-    document.getElementById("dbAvgScore").innerText = data.avg_safety_score + "%";
-    document.getElementById("dbRepeatVehicles").innerText = data.repeat_vehicles.toLocaleString();
+    // DASHBOARD PAGE (animate AFTER API response)
+    animateCounter("dbTotalTrips", data.total_trips);
+    animateCounter("dbTotalVehicles", data.total_vehicles);
+    animateCounter("dbAvgScore", data.avg_safety_score, "%");
+    animateCounter("dbRepeatVehicles", data.repeat_vehicles);
+
   } catch(err) {
     console.error("Fleet Summary Error:", err);
   }
