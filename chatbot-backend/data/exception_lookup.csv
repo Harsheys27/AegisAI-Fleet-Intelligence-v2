@@ -1,0 +1,6 @@
+﻿exception_type,exception_name,severity
+10,Overspeed,HIGH
+11,Night Driving,MEDIUM
+15,Harsh Braking,HIGH
+24,Harsh Acceleration,HIGH
+9,Faulty System,Medium 

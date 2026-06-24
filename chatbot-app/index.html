@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Aegis AI Fleet — Fleet Safety Intelligence</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,300&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<canvas id="bg-canvas"></canvas>
+
+<nav>
+  <div class="logo-container">
+    <img src="logo.png" alt="Aegis AI" class="logo">
+    <span class="brand-name">AEGIS AI</span>
+  </div>
+  <ul class="nav-links">
+    <li><a onclick="showPage('home')" class="active" id="nav-home">HomePage</a></li>
+    <li><a onclick="showPage('chat')" id="nav-chat">AI Assistant</a></li>
+    <li><a onclick="showPage('dashboard')" id="nav-dashboard">Dashboard</a></li>
+  </ul>
+</nav>
+
+
+
+<div class="app">
+
+<div id="home-page" class="page active">
+
+  <div class="orb" style="width:600px;height:600px;top:-100px;left:-200px;background:radial-gradient(circle,#4f8ef7,transparent)"></div>
+  <div class="orb" style="width:500px;height:500px;top:200px;right:-150px;background:radial-gradient(circle,#22d3c8,transparent)"></div>
+  <div class="orb" style="width:400px;height:400px;bottom:100px;left:30%;background:radial-gradient(circle,#a78bfa,transparent)"></div>
+
+  <section id="hero">
+    <div class="ai-orb"></div>
+    <div class="hero-eyebrow">
+      <div class="particles"></div>
+      <span class="pulse-dot"></span>
+      Real-time Fleet Intelligence · AI-Powered Safety
+    </div>
+
+    <h1 class="hero-title">
+      AI-Powered<br>
+      <span class="gradient-text">Fleet Intelligence</span>
+    </h1>
+
+    <p class="hero-sub">
+      Transform fleet safety data into actionable insights with real-time AI recommendations, predictive risk analysis, and intelligent exception detection.
+    </p>
+
+    <div class="hero-buttons">
+      <button class="btn btn-teal" onclick="showPage('dashboard')">View Dashboard</button>
+      <button class="btn btn-ghost" onclick="scrollToSection('features')">Explore Features</button>
+    </div>
+
+
+    <div class="metrics-strip">
+      <div class="metric-item">
+        <div class="metric-label">Total Vehicles</div>
+        <div class="metric-value" id="homeTotalVehicles">0</div>
+        <div class="metric-trend">Distinct vehicles in fleet</div>
+      </div>
+      <div class="metric-item">
+        <div class="metric-label">TOTAL TRIPS</div>
+        <div class="metric-value" id="homeTotalTrips">0</div>
+        <div class="metric-trend">Recorded Events</div>
+      </div>
+      <div class="metric-item">
+        <div class="metric-label">Avg Safety Score</div>
+        <div class="metric-value" id="homeAvgScore">0</div>
+        <div class="metric-trend">Fleet-wide score</div>
+      </div>
+      <div class="metric-item">
+        <div class="metric-label">REPEAT VEHICLES</div>
+        <div class="metric-value" id="homeRepeatVehicles">0</div>
+        <div class="metric-trend">Vehicles with recurring issues</div>
+      </div>
+      <div class="metric-item">
+        <div class="metric-label">TOTAL EXCEPTIONS</div>
+        <div class="metric-value" id="homeTotalExceptions">0</div>
+        <div class="metric-trend">Repeated entries</div>
+      </div>
+    </div>
+  </section>
+
+  <section id="features" style="padding-top:60px">
+    <div style="text-align:center;margin-bottom:56px">
+      <div class="section-label">Platform Capabilities</div>
+      <div class="section-title">Fleet Intelligence,<br><span class="gradient-text">Reimagined</span></div>
+      <p class="section-sub" style="margin:16px auto 0;text-align:center">Enterprise-grade AI that monitors every vehicle, predicts every risk, and generates actionable safety improvements in real time.</p>
+    </div>
+
+    <div class="features-grid">
+      <div class="glass-card feature-card">
+        <div class="feature-icon blue">MON</div>
+        <div class="feature-title">Real-Time Vehicle Monitoring</div>
+        <div class="feature-desc">Track every vehicle's position, speed, and behavior patterns with millisecond precision. Instant alerts on critical safety events.</div>
+      </div>
+      <div class="glass-card feature-card">
+        <div class="feature-icon teal">AI</div>
+        <div class="feature-title">AI Risk Prediction</div>
+        <div class="feature-desc">Phi-3 and Llama 3 powered models analyze historical patterns to predict future exceptions before they happen.</div>
+      </div>
+      <div class="glass-card feature-card">
+        <div class="feature-icon purple">SYS</div>
+        <div class="feature-title">Conversational AI Assistant</div>
+        <div class="feature-desc">Ask questions about vehicles, exception types, fleet metrics, and safety trends to receive intelligent insights and recommendations.</div>
+      </div>
+      <div class="glass-card feature-card">
+        <div class="feature-icon amber">OPS</div>
+        <div class="feature-title">Exception Analytics</div>
+        <div class="feature-desc">Deep analysis of overspeed, harsh braking, night driving, and aggressive maneuvers with trend forecasting.</div>
+      </div>
+      <div class="glass-card feature-card">
+        <div class="feature-icon green">ALT</div>
+        <div class="feature-title">Fleet Exception Insights</div>
+        <div class="feature-desc">Visualize overspeed, harsh braking, night driving, and other safety events to identify recurring issues across the fleet.</div>
+      </div>
+      <div class="glass-card feature-card">
+        <div class="feature-icon red">KPI</div>
+        <div class="feature-title">Driver Performance Scoring</div>
+        <div class="feature-desc">Safety scoring based on exception frequency and vehicle risk indicators to help prioritize corrective actions.</div>
+      </div>
+    </div>
+  </section>
+
+  <div class="exception-grid" style="grid-template-columns:1fr 1fr;margin-top:32px">
+    </div>
+
+  <section style="text-align:center;padding-bottom:120px">
+    <div class="glass-card" style="max-width:720px;margin:0 auto;padding:60px;background:linear-gradient(180deg,rgba(47,140,255,0.06),rgba(0,0,0,0.20))">
+      <div class="section-title" style="margin-bottom:16px">Ready to Transform<br><span class="gradient-text">Your Fleet Safety?</span></div>
+      <p style="color:var(--text-secondary);margin-bottom:32px;font-size:16px">Ask Aegis AI about any vehicle. Get instant risk analysis, exception breakdown, and AI-powered recommendations.</p>
+      <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap">
+        <button class="btn btn-primary" style="padding:14px 32px;font-size:15px" onclick="showPage('chat')">OPS Start with AI Assistant</button>
+        <button class="btn btn-ghost" style="padding:14px 32px;font-size:15px" onclick="showPage('dashboard')">View Full Dashboard</button>
+      </div>
+    </div>
+  </section>
+
+</div>
+
+<div id="chat-page" class="page">
+  <div style="padding-top:64px;height:100vh;display:flex;flex-direction:column">
+    <div style="padding:16px 32px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between">
+      <div>
+        <div style="font-family:var(--font-display);font-size:20px;font-weight:700;letter-spacing:-0.02em">AI Fleet Assistant</div>
+        <div style="font-size:12px;color:var(--text-muted);margin-top:2px">Powered by Phi-3 · Llama 3 · Aegis Safety Engine</div>
+      </div>
+      <div style="display:flex;gap:8px;align-items:center">
+        <div style="width:7px;height:7px;background:var(--green);border-radius:50%;animation:pulse 2s infinite"></div>
+        <span style="font-size:12px;color:var(--green);font-weight:600">AI Online</span>
+      </div>
+    </div>
+
+    <div style="flex:1;min-height:0;display:grid;grid-template-columns:280px 1fr;gap:0">
+
+      <div style="border-right:1px solid var(--border);overflow-y:auto;padding:16px">
+        <div class="sidebar-label">Watched Vehicles</div>
+        <div id="sidebar-vehicles">
+          </div>
+        <div class="sidebar-label" style="margin-top:20px">Recent Analysis</div>
+        <div id="sidebar-recent"></div>
+      </div>
+
+      <div class="glass-card chat-main" style="margin:0;border-radius:0;border:none;background:rgba(6,8,17,0.5)">
+        <div class="chat-window" id="chat-window">
+          <div class="msg">
+            <div class="msg-avatar ai">⬡</div>
+            <div class="msg-body">
+              <div class="msg-bubble ai">
+                <strong style="display:block;margin-bottom:8px;color:var(--accent)">Aegis AI Fleet Assistant</strong>
+                Welcome to Aegis AI. I can analyze any vehicle in your fleet, assess risk levels, explain exception patterns, and suggest optimizations.<br><br>
+                <span style="color:var(--text-secondary)">Try asking:</span> <span style="color:var(--teal)">"Analyze Trucks"</span> or <span style="color:var(--accent)">"Which vehicles are high risk?"</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="chat-input-area">
+          <div class="chat-input-wrap">
+            <textarea id="chat-input" placeholder="Ask about any vehicle, risk, or safety metric..." rows="1" onkeydown="handleChatKey(event)" oninput="autoResize(this)"></textarea>
+            <button class="send-btn" onclick="submitChat()"></button>
+          </div>
+          <button class="btn btn-ghost" style="height:46px;padding:0 14px;flex-shrink:0" title="Voice input"></button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="dashboard-page" class="page">
+  <div id="dashboard-inner" style="padding:88px 32px 60px">
+    <div class="db-header">
+      <div>
+        <div class="db-title">Fleet Safety Dashboard</div>
+        <div style="font-size:13px;color:var(--text-muted);margin-top:4px">Real-time monitoring · Last updated just now</div>
+      </div>
+      <div style="display:flex;gap:10px">
+        <select style="background:var(--bg-card);border:1px solid var(--border);color:var(--text-secondary);padding:8px 16px;border-radius:10px;font-size:13px;font-family:var(--font-body)">
+          <option>Last 30 days</option>
+          <option>Last 90 days</option>
+          <option>Last 6 months</option>
+        </select>
+        <button class="btn btn-primary">Export Report</button>
+      </div>
+    </div>
+
+    <div class="db-grid-top">
+      <div class="glass-card db-stat-card">
+        <div class="db-stat-label">Total Fleet Recorded</div>
+        <div class="db-stat-val" id="dbTotalTrips">0</div>
+      </div>
+      <div class="glass-card db-stat-card">
+        <div class="db-stat-label">Active Vehicles</div>
+        <div class="db-stat-val" id="dbTotalVehicles">0</div>
+        <div class="db-stat-desc">of 7385 total fleet</div>
+      </div>
+      <div class="glass-card db-stat-card">
+        <div class="db-stat-label">Fleet Safety Score</div>
+        <div class="db-stat-val" id="dbAvgScore">0</div>
+        <div class="db-stat-desc">↑ above average score </div>
+      </div>
+      <div class="glass-card db-stat-card">
+        <div class="db-stat-label">High-Frequency Exception Vehicles</div>
+        <div class="db-stat-val" id="dbRepeatVehicles">0</div>
+        <div class="db-stat-desc">Repeated occurrences identified</div>
+      </div>
+    </div>
+
+    <div class="db-charts">
+      <div class="glass-card db-chart-card">
+        <div class="db-chart-title">Exception Categories Overview</div>
+        <div class="db-chart-sub">All exception categories with AI anomaly detection overlaid</div>
+        <div class="chart-container" style="height:240px">
+          <canvas id="trendChart"></canvas>
+        </div>
+      </div>
+      <div class="glass-card db-chart-card">
+        <div class="db-chart-title">Risk Distribution</div>
+        <div class="db-chart-sub">Fleet segmented by risk tier</div>
+        <div class="chart-container" style="height:240px">
+          <canvas id="riskChart"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <div class="db-bottom">
+      <div class="glass-card db-chart-card">
+        <div class="db-chart-title">Highest Risk Vehicles</div>
+        <div class="db-chart-sub">Ranked by exception frequency</div>
+        <table class="rank-table" style="margin-top:12px">
+          <thead>
+            <tr>
+              <th>Vehicle</th>
+              <th>Score</th>
+              <th>Exceptions</th>
+              <th>Risk</th>
+            </tr>
+          </thead>
+          <tbody id="risk-table-body"></tbody>
+        </table>
+      </div>
+
+      <div class="glass-card db-chart-card">
+        <div class="db-chart-title">Driver Performance</div>
+        <div class="db-chart-sub">Safety score distribution</div>
+        <div class="chart-container" style="height:200px">
+          <canvas id="driverChart"></canvas>
+        </div>
+      </div>
+
+      <div class="glass-card db-chart-card">
+        <div class="db-chart-title">AI Insights</div>
+        <div class="db-chart-sub">Generated recommendations</div>
+        <div id="ai-insights" style="margin-top:12px"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+</div><script src="app.js"></script>
+</body>
+</html>
