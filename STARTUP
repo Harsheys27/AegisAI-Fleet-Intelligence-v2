@@ -1,0 +1,27 @@
+Run the project yourself (frontend + backend)
+1) Start the backend (Flask)
+Open Terminal and go to:
+chatbot-backend/
+Install dependencies:
+pip install -r requirements.txt
+Run the server:
+python app.py
+Backend will start on:
+
+http://127.0.0.1:8000
+It also uses Ollama (model phi3). If you don’t have Ollama running, the /analyze chat route will fail.
+
+2) Run the frontend (static HTML)
+Open:
+chatbot-app/index.html
+Recommended:
+
+Use VS Code Live Server (or open in browser)
+The frontend calls the backend at:
+
+http://127.0.0.1:8000/...
+Quick check (optional)
+In a browser or via Terminal:
+
+http://127.0.0.1:8000/ should return JSON like {"status":"running","model":"phi3"}
+http://127.0.0.1:8000/fleet-summary should return the summary numbers.
