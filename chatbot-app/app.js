@@ -355,22 +355,78 @@ function initDashboard() {
       const tbody = document.getElementById("risk-table-body");
       if (!tbody) return;
 
-      tbody.innerHTML = vehicles.map(v => `
+      function riskClass(risk) {
+        const r = String(risk || '').toLowerCase();
+        if (r.includes('high')) return 'risk-high';
+        if (r.includes('medium') || r.includes('moderate')) return 'risk-med';
+        if (r.includes('low')) return 'risk-low';
+        return '';
+      }
+
+      tbody.innerHTML = vehicles.map(v => {
+        const rc = riskClass(v.risk);
+        const riskText = String(v.risk ?? '');
+        return `
         <tr>
           <td><strong>${v.vehicle_id}</strong></td>
           <td>${v.score}</td>
           <td>${v.exceptions}</td>
-          <td><span class="risk-badge">${v.risk}</span></td>
+          <td><span class="risk-badge ${rc}">${riskText}</span></td>
         </tr>
-      `).join("");
+      `;
+      }).join("");
     });
 
   // ================= AI INSIGHTS =================
   fetch("http://127.0.0.1:8000/ai-insights")
     .then(res => res.json())
     .then(data => {
-      document.getElementById("ai-insights").innerHTML =
-        data.insights.map(i => `<div class="insight-item">• ${i}</div>`).join("");
+      const el = document.getElementById("ai-insights");
+      if (!el) return;
+
+      const insights = Array.isArray(data.insights) ? data.insights : [];
+
+      function getSeverity(text = "") {
+        const t = String(text).toLowerCase();
+        if (t.includes('highest') || t.includes('critical') || t.includes('very high') || t.includes('high risk') || t.includes('risk level: high') || t.includes('warning') || t.includes('danger')) return 'high';
+        if (t.includes('medium') || t.includes('moderate') || t.includes('elevated') || t.includes('risk level: medium') || t.includes('caution')) return 'medium';
+        if (t.includes('low') || t.includes('safe') || t.includes('below average') || t.includes('risk level: low')) return 'low';
+        return 'low';
+      }
+
+      function getIcon(text = "") {
+        const t = String(text).toLowerCase();
+        if (t.includes('highest') || t.includes('critical') || t.includes('risk') || t.includes('high')) return '⚠';
+        if (t.includes('medium') || t.includes('moderate') || t.includes('caution')) return '▣';
+        return '⟐';
+      }
+
+      const removedCardMatchers = [
+        'driver',
+        'safety score'
+      ];
+
+      const filteredInsights = insights.filter((i) => {
+        const text = String(i || '').toLowerCase();
+        return !removedCardMatchers.some((m) => text.includes(m));
+      });
+
+      el.innerHTML = filteredInsights
+        .map((i) => {
+          const severity = getSeverity(i);
+          const icon = getIcon(i);
+          const title = (String(i).trim().slice(0, 42) + (String(i).trim().length > 42 ? '…' : '')).replace(/^[-•\s]+/, '');
+          return `
+            <div class="insight-item" data-severity="${severity}">
+              <span class="insight-dot" aria-hidden="true" style="background: ${severity === 'high' ? '#ef4444' : severity === 'medium' ? '#f59e0b' : '#22c55e'}"></span>
+              <div class="insight-main">
+                <div class="insight-title">${icon} ${title}</div>
+                <div class="insight-text">${String(i)}</div>
+              </div>
+            </div>
+          `;
+        })
+        .join("");
     })
     .catch(() => {
       document.getElementById("ai-insights").innerHTML = "Unable to load AI insights";

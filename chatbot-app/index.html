@@ -196,10 +196,19 @@
 
 <div id="dashboard-page" class="page">
   <div id="dashboard-inner" style="padding:88px 32px 60px">
-    <div class="db-header">
-      <div>
-        <div class="db-title">Fleet Safety Dashboard</div>
-        <div style="font-size:13px;color:var(--text-muted);margin-top:4px">Real-time monitoring · Last updated just now</div>
+      <div class="db-header">
+      <div class="db-header-left">
+        <div class="db-header-title-row">
+          <span class="db-live-indicator" aria-label="live status">🟢 LIVE</span>
+          <span class="db-live-separator">•</span>
+          <div class="db-title">Fleet Safety Dashboard</div>
+          <span class="db-health-badge" aria-label="fleet health badge">Fleet Health: Operational</span>
+        </div>
+        <div class="db-header-sub">
+          <span class="db-last-updated">Last updated just now</span>
+          <span class="db-muted-dot">·</span>
+          <span class="db-ai-badge">AI-Powered Intelligence Center</span>
+        </div>
       </div>
       <div style="display:flex;gap:10px">
         <select style="background:var(--bg-card);border:1px solid var(--border);color:var(--text-secondary);padding:8px 16px;border-radius:10px;font-size:13px;font-family:var(--font-body)">
@@ -212,22 +221,45 @@
     </div>
 
     <div class="db-grid-top">
-      <div class="glass-card db-stat-card">
-        <div class="db-stat-label">Total Fleet Recorded</div>
+      <div class="glass-card db-stat-card db-stat-card--glow" data-stat="trips">
+        <div class="db-stat-accent" aria-hidden="true"></div>
+        <div class="db-stat-header">
+          <span class="db-stat-icon" aria-hidden="true">⟠</span>
+          <div class="db-stat-label">Total Fleet Recorded</div>
+          <div class="db-stat-trend"><span class="db-trend-arrow">↑</span> 12% this month</div>
+        </div>
         <div class="db-stat-val" id="dbTotalTrips">0</div>
       </div>
-      <div class="glass-card db-stat-card">
-        <div class="db-stat-label">Active Vehicles</div>
+
+      <div class="glass-card db-stat-card" data-stat="vehicles">
+        <div class="db-stat-accent" aria-hidden="true"></div>
+        <div class="db-stat-header">
+          <span class="db-stat-icon" aria-hidden="true">⦿</span>
+          <div class="db-stat-label">Active Vehicles</div>
+          <div class="db-stat-trend"><span class="db-live-dot" aria-hidden="true"></span> Live</div>
+        </div>
         <div class="db-stat-val" id="dbTotalVehicles">0</div>
         <div class="db-stat-desc">of 7385 total fleet</div>
       </div>
-      <div class="glass-card db-stat-card">
-        <div class="db-stat-label">Fleet Safety Score</div>
+
+      <div class="glass-card db-stat-card db-stat-card--pulse" data-stat="safety">
+        <div class="db-stat-accent" aria-hidden="true"></div>
+        <div class="db-stat-header">
+          <span class="db-stat-icon" aria-hidden="true">🛡</span>
+          <div class="db-stat-label">Fleet Safety Score</div>
+          <div class="db-stat-trend"><span class="db-trend-arrow">↑</span> Above average</div>
+        </div>
         <div class="db-stat-val" id="dbAvgScore">0</div>
         <div class="db-stat-desc">↑ above average score </div>
       </div>
-      <div class="glass-card db-stat-card">
-        <div class="db-stat-label">High-Frequency Exception Vehicles</div>
+
+      <div class="glass-card db-stat-card" data-stat="exceptions">
+        <div class="db-stat-accent" aria-hidden="true"></div>
+        <div class="db-stat-header">
+          <span class="db-stat-icon" aria-hidden="true">⚠</span>
+          <div class="db-stat-label">High-Frequency Exception Vehicles</div>
+          <div class="db-stat-trend"><span class="db-trend-arrow">●</span> Prioritized</div>
+        </div>
         <div class="db-stat-val" id="dbRepeatVehicles">0</div>
         <div class="db-stat-desc">Repeated occurrences identified</div>
       </div>
@@ -251,34 +283,36 @@
     </div>
 
     <div class="db-bottom">
-      <div class="glass-card db-chart-card">
+      <div class="glass-card db-chart-card db-card-high">
         <div class="db-chart-title">Highest Risk Vehicles</div>
         <div class="db-chart-sub">Ranked by exception frequency</div>
-        <table class="rank-table" style="margin-top:12px">
-          <thead>
-            <tr>
-              <th>Vehicle</th>
-              <th>Score</th>
-              <th>Exceptions</th>
-              <th>Risk</th>
-            </tr>
-          </thead>
-          <tbody id="risk-table-body"></tbody>
-        </table>
+        <div class="rank-table-wrap" style="margin-top:12px">
+          <table class="rank-table">
+            <thead>
+              <tr>
+                <th>Vehicle</th>
+                <th>Score</th>
+                <th>Exceptions</th>
+                <th>Risk</th>
+              </tr>
+            </thead>
+            <tbody id="risk-table-body"></tbody>
+          </table>
+        </div>
       </div>
 
-      <div class="glass-card db-chart-card">
+      <div class="glass-card db-chart-card db-card-driver">
         <div class="db-chart-title">Driver Performance</div>
         <div class="db-chart-sub">Safety score distribution</div>
-        <div class="chart-container" style="height:200px">
+        <div class="chart-container" style="height:280px">
           <canvas id="driverChart"></canvas>
         </div>
       </div>
 
-      <div class="glass-card db-chart-card">
-        <div class="db-chart-title">AI Insights</div>
-        <div class="db-chart-sub">Generated recommendations</div>
-        <div id="ai-insights" style="margin-top:12px"></div>
+      <div class="glass-card db-chart-card db-card-ai">
+        <div class="db-chart-title">AI Intelligence Feed</div>
+        <div class="db-chart-sub">Priority-ranked recommendations and risk signals</div>
+        <div id="ai-insights" class="ai-insights-feed" style="margin-top:12px"></div>
       </div>
     </div>
   </div>
