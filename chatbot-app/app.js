@@ -230,8 +230,169 @@ let chartsInit = {};
 // =================== DASHBOARD ===================
 function initDashboard() {
   // Animate dashboard stat cards (they are populated by loadFleetSummary(),
-  // but initDashboard may run before that settles on navigation).
+  // but initDashboard may run before that settles on navigation.
   // We keep this empty so we don't double-animate with the same API payload.
+
+  // Store the currently displayed dashboard data for Export Report.
+  // Export must use already-loaded data; do not generate placeholders.
+  if (!window.__dashboardStore) window.__dashboardStore = {};
+  window.__dashboardStore.fleetSummary = null;
+  window.__dashboardStore.chartData = null;
+  window.__dashboardStore.vehicles = null;
+  window.__dashboardStore.aiInsights = null;
+
+  // Keep KPI values updated in the export store even if fleet-summary arrives elsewhere.
+  // loadFleetSummary() already runs on window load; we mirror its payload into the store.
+  const mirrorFleetSummary = (data) => { window.__dashboardStore.fleetSummary = data; };
+  // Expose for loadFleetSummary() below.
+  window.__mirrorFleetSummary = mirrorFleetSummary;
+
+  const exportBtn = document.getElementById('export-report-btn');
+  if (exportBtn && !exportBtn.__exportHandlerAttached) {
+    exportBtn.__exportHandlerAttached = true;
+    exportBtn.addEventListener('click', () => {
+      const store = window.__dashboardStore || {};
+      const fleet = store.fleetSummary || {};
+      const charts = store.chartData || {};
+      const vehicles = Array.isArray(store.vehicles) ? store.vehicles : [];
+      const aiInsights = Array.isArray(store.aiInsights) ? store.aiInsights : [];
+
+      const date = new Date();
+      const pad = (n) => String(n).padStart(2, '0');
+      const yyyy = date.getFullYear();
+      const mm = pad(date.getMonth() + 1);
+      const dd = pad(date.getDate());
+      const hh = pad(date.getHours());
+      const min = pad(date.getMinutes());
+      // Match requested format; include time to avoid collisions.
+      const dateStr = `${yyyy}-${mm}-${dd}`;
+      const fileName = `Fleet_Safety_Report_${dateStr}.csv`;
+
+      // KPI fields from already-loaded dashboard data
+      const totalFleetRecorded = Number(fleet.total_trips ?? fleet.totalTrips ?? 0);
+      const activeVehicles = Number(fleet.total_vehicles ?? fleet.totalVehicles ?? 0);
+      const fleetSafetyScore = Number(fleet.avg_safety_score ?? fleet.avgSafetyScore ?? 0);
+      const highFrequencyExceptionVehicles = Number(fleet.repeat_vehicles ?? fleet.repeatVehicles ?? 0);
+
+      const exceptionCategoriesOverview = charts.exception_trends || {};
+      const riskDistribution = charts.risk_distribution || {};
+
+      // AI Intelligence Feed summary requirements
+      // Highest Risk Vehicle + Risk Level: derive from vehicles table
+      let highestRiskVehicle = '';
+      let highestRiskLevel = '';
+      let mostFrequentException = '';
+      let totalExceptions = 0;
+
+      // Total Exceptions: use highest risk vehicle exceptions if available
+      // Most frequent exception: pick max from exception categories
+      // Highest risk vehicle: pick first highest-risk (high) else max score
+      const riskRank = (r) => {
+        const s = String(r || '').toLowerCase();
+        if (s.includes('high')) return 3;
+        if (s.includes('medium') || s.includes('moderate')) return 2;
+        if (s.includes('low')) return 1;
+        return 0;
+      };
+
+      if (vehicles.length) {
+        let best = vehicles[0];
+        for (const v of vehicles) {
+          const br = riskRank(best?.risk);
+          const rr = riskRank(v?.risk);
+          if (rr > br) best = v;
+          else if (rr === br) {
+            const bExc = Number(best?.exceptions ?? 0);
+            const vExc = Number(v?.exceptions ?? 0);
+            if (vExc > bExc) best = v;
+          }
+        }
+        highestRiskVehicle = best?.vehicle_id ?? '';
+        highestRiskLevel = best?.risk ?? '';
+        totalExceptions = Number(best?.exceptions ?? 0);
+      }
+
+      // Most frequent exception from exception categories overview
+      if (exceptionCategoriesOverview && typeof exceptionCategoriesOverview === 'object') {
+        let maxKey = '';
+        let maxVal = -Infinity;
+        for (const [k, v] of Object.entries(exceptionCategoriesOverview)) {
+          const num = Number(v);
+          if (Number.isFinite(num) && num > maxVal) {
+            maxVal = num;
+            maxKey = k;
+          }
+        }
+        mostFrequentException = maxKey;
+      }
+
+      // Build CSV rows (single sheet-style)
+      // Keep required sections explicitly labeled.
+      const rows = [];
+      const addRow = (...cols) => {
+        rows.push(cols.map(c => {
+          const s = String(c ?? '');
+          // Escape double quotes and wrap if needed
+          if (/[",\n]/.test(s)) return '"' + s.replace(/"/g, '""') + '"';
+          return s;
+        }).join(','));
+      };
+
+      addRow('Metric', 'Value');
+      addRow('Total Fleet Recorded', totalFleetRecorded);
+      addRow('Active Vehicles', activeVehicles);
+      addRow('Fleet Safety Score', fleetSafetyScore);
+      addRow('High-Frequency Exception Vehicles', highFrequencyExceptionVehicles);
+      addRow(' ' , ' ');
+
+      addRow('Exception Categories Overview');
+      addRow('Category', 'Count');
+      const excEntries = Object.entries(exceptionCategoriesOverview || {});
+      if (excEntries.length) {
+        excEntries.forEach(([k, v]) => addRow(k, v));
+      } else {
+        addRow('N/A', 'N/A');
+      }
+      addRow(' ' , ' ');
+
+      addRow('Risk Distribution');
+      addRow('Risk Tier', 'Count');
+      const riskEntries = Object.entries(riskDistribution || {});
+      if (riskEntries.length) {
+        riskEntries.forEach(([k, v]) => addRow(k, v));
+      } else {
+        addRow('N/A', 'N/A');
+      }
+      addRow(' ' , ' ');
+
+      addRow('AI Intelligence Feed Summary');
+      addRow('Highest Risk Vehicle', highestRiskVehicle);
+      addRow('Risk Level', highestRiskLevel);
+      addRow('Most Frequent Exception', mostFrequentException);
+      addRow('Total Exceptions', totalExceptions);
+      addRow(' ' , ' ');
+
+      // (Optional) include raw feed as a last section, still derived from loaded data
+      addRow('AI Intelligence Feed (Raw Items)');
+      addRow('Item');
+      if (aiInsights.length) {
+        aiInsights.forEach(i => addRow(i));
+      } else {
+        addRow('N/A');
+      }
+
+      const csv = rows.join('\n');
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = fileName;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+    });
+  }
 
   fetch("http://127.0.0.1:8000/exceptions")
 
@@ -244,6 +405,11 @@ function initDashboard() {
   fetch("http://127.0.0.1:8000/dashboard-charts")
     .then(res => res.json())
     .then(data => {
+      // Keep export store synced with currently displayed charts
+      window.__dashboardStore = window.__dashboardStore || {};
+      window.__dashboardStore.chartData = data;
+
+      
 
       // ================= TREND CHART =================
       const trendEl = document.getElementById('trendChart');
@@ -294,6 +460,8 @@ function initDashboard() {
             labels,
             datasets: [{
               data: values,
+              borderColor: '#07090f',
+              borderWidth: 2,
               backgroundColor: [
                 'rgba(52,211,153,0.8)',
                 'rgba(245,158,11,0.8)',
@@ -352,6 +520,11 @@ function initDashboard() {
   fetch("http://127.0.0.1:8000/vehicles")
     .then(res => res.json())
     .then(vehicles => {
+      // Keep export store synced with currently displayed table
+      window.__dashboardStore = window.__dashboardStore || {};
+      window.__dashboardStore.vehicles = vehicles;
+      
+      
       const tbody = document.getElementById("risk-table-body");
       if (!tbody) return;
 
@@ -381,6 +554,11 @@ function initDashboard() {
   fetch("http://127.0.0.1:8000/ai-insights")
     .then(res => res.json())
     .then(data => {
+      // Keep export store synced with currently displayed AI feed
+      window.__dashboardStore = window.__dashboardStore || {};
+      window.__dashboardStore.aiInsights = Array.isArray(data?.insights) ? data.insights : [];
+
+      
       const el = document.getElementById("ai-insights");
       if (!el) return;
 
@@ -718,6 +896,11 @@ async function loadFleetSummary() {
     animateCounter("dbTotalVehicles", data.total_vehicles);
     animateCounter("dbAvgScore", data.avg_safety_score, "%");
     animateCounter("dbRepeatVehicles", data.repeat_vehicles);
+
+    // Mirror into export store for Export Report.
+    window.__dashboardStore = window.__dashboardStore || {};
+    window.__dashboardStore.fleetSummary = data;
+    window.__mirrorFleetSummary?.(data);
 
   } catch(err) {
     console.error("Fleet Summary Error:", err);
