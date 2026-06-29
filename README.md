@@ -16,14 +16,14 @@ The platform processes fleet exception datasets and provides interactive insight
 
 #  Features
 
-* 📊 Fleet exception analytics
-* 🚗 Vehicle-wise exception monitoring
-* ⚠️ Risk and safety assessment
-* 📈 Exception trend visualization
-* 🤖 AI-powered recommendations
-* 📋 Structured tabular responses
-* 🔍 Exception breakdown analysis
-* 📉 Fleet-wide insights and reporting
+* Fleet exception analytics
+* Vehicle-wise exception monitoring
+* Risk and safety assessment
+* Exception trend visualization
+* AI-powered recommendations
+* Structured tabular responses
+* Exception breakdown analysis
+* Fleet-wide insights and reporting
 
 ---
 
@@ -159,3 +159,4 @@ Kriti Labs
 # License
 
 This repository is intended for educational, research, and demonstration purposes only.
+completed under the supervision of Kriti Labs.
