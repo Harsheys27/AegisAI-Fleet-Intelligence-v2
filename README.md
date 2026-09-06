@@ -159,5 +159,5 @@ Kriti Labs
 # License
 
 This repository is intended for educational, research, and demonstration purposes only.
-completed under the supervision of Kriti Labs...
+completed under the supervision of Kriti Labs
 
